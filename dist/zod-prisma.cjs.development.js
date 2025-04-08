@@ -15,7 +15,7 @@ var version = "0.5.4";
 
 const configBoolean = /*#__PURE__*/zod.z.enum(['true', 'false']).transform(arg => JSON.parse(arg));
 const configSchema = /*#__PURE__*/zod.z.object({
-  relationModel: /*#__PURE__*/configBoolean.default('true').or( /*#__PURE__*/zod.z.literal('default')),
+  relationModel: /*#__PURE__*/configBoolean.default('true').or(/*#__PURE__*/zod.z.literal('default')),
   modelSuffix: /*#__PURE__*/zod.z.string().default('Model'),
   modelCase: /*#__PURE__*/zod.z.enum(['PascalCase', 'camelCase']).default('PascalCase'),
   useDecimalJs: /*#__PURE__*/configBoolean.default('false'),
@@ -33,10 +33,8 @@ const useModelNames = ({
     if (modelCase === 'camelCase') {
       name = name.slice(0, 1).toLowerCase() + name.slice(1);
     }
-
     return `${prefix}${name}${modelSuffix}`;
   };
-
   return {
     modelName: name => formatModelName(name, relationModel === 'default' ? '_' : ''),
     relatedModelName: name => formatModelName(relationModel === 'default' ? name.toString() : `Related${name.toString()}`)
@@ -57,24 +55,21 @@ const dotSlash = input => {
 
 const getJSDocs = docString => {
   const lines = [];
-
   if (docString) {
     const docLines = docString.split('\n').filter(dL => !dL.trimStart().startsWith('@zod'));
-
     if (docLines.length) {
       lines.push('/**');
       docLines.forEach(dL => lines.push(` * ${dL}`));
       lines.push(' */');
     }
   }
-
   return lines;
 };
-const getZodDocElements = docString => docString.split('\n').filter(line => line.trimStart().startsWith('@zod')).map(line => line.trimStart().slice(4)).flatMap(line => // Array.from(line.matchAll(/\.([^().]+\(.*?\))/g), (m) => m.slice(1)).flat()
+const getZodDocElements = docString => docString.split('\n').filter(line => line.trimStart().startsWith('@zod')).map(line => line.trimStart().slice(4)).flatMap(line =>
+// Array.from(line.matchAll(/\.([^().]+\(.*?\))/g), (m) => m.slice(1)).flat()
 chunk(parenthesis.parse(line), 2).slice(0, -1).map(([each, contents]) => each.replace(/\)?\./, '') + `${parenthesis.stringify(contents)})`));
 const computeCustomSchema = docString => {
   var _getZodDocElements$fi;
-
   return (_getZodDocElements$fi = getZodDocElements(docString).find(modifier => modifier.startsWith('custom('))) == null ? void 0 : _getZodDocElements$fi.slice(7).slice(0, -1);
 };
 const computeModifiers = docString => {
@@ -84,43 +79,34 @@ const computeModifiers = docString => {
 const getZodConstructor = (field, getRelatedModelName = name => name.toString()) => {
   let zodType = 'z.unknown()';
   let extraModifiers = [''];
-
   if (field.kind === 'scalar') {
     switch (field.type) {
       case 'String':
         zodType = 'z.string()';
         break;
-
       case 'Int':
         zodType = 'z.number()';
         extraModifiers.push('int()');
         break;
-
       case 'BigInt':
         zodType = 'z.bigint()';
         break;
-
       case 'DateTime':
         zodType = 'z.date()';
         break;
-
       case 'Float':
         zodType = 'z.number()';
         break;
-
       case 'Decimal':
         zodType = 'z.number()';
         break;
-
       case 'Json':
         zodType = 'jsonSchema';
         break;
-
       case 'Boolean':
         zodType = 'z.boolean()';
         break;
       // TODO: Proper type for bytes fields
-
       case 'Bytes':
         zodType = 'z.unknown()';
         break;
@@ -130,18 +116,14 @@ const getZodConstructor = (field, getRelatedModelName = name => name.toString())
   } else if (field.kind === 'object') {
     zodType = getRelatedModelName(field.type);
   }
-
   if (field.isList) extraModifiers.push('array()');
-
   if (field.documentation) {
     var _computeCustomSchema;
-
     zodType = (_computeCustomSchema = computeCustomSchema(field.documentation)) != null ? _computeCustomSchema : zodType;
     extraModifiers.push(...computeModifiers(field.documentation));
   }
-
-  if (!field.isRequired && field.type !== 'Json') extraModifiers.push('nullish()'); // if (field.hasDefaultValue) extraModifiers.push('optional()')
-
+  if (!field.isRequired && field.type !== 'Json') extraModifiers.push('nullish()');
+  // if (field.hasDefaultValue) extraModifiers.push('optional()')
   return `${zodType}${extraModifiers.join('.')}`;
 };
 
@@ -158,7 +140,6 @@ const writeImportsForModel = (model, sourceFile, config, {
     namespaceImport: 'z',
     moduleSpecifier: 'zod'
   }];
-
   if (config.imports) {
     importList.push({
       kind: tsMorph.StructureKind.ImportDeclaration,
@@ -166,7 +147,6 @@ const writeImportsForModel = (model, sourceFile, config, {
       moduleSpecifier: dotSlash(path__default["default"].relative(outputPath, path__default["default"].resolve(path__default["default"].dirname(schemaPath), config.imports)))
     });
   }
-
   if (config.useDecimalJs && model.fields.some(f => f.type === 'Decimal')) {
     importList.push({
       kind: tsMorph.StructureKind.ImportDeclaration,
@@ -174,11 +154,9 @@ const writeImportsForModel = (model, sourceFile, config, {
       moduleSpecifier: 'decimal.js'
     });
   }
-
   const enumFields = model.fields.filter(f => f.kind === 'enum');
   const relationFields = model.fields.filter(f => f.kind === 'object');
   const relativePath = path__default["default"].relative(outputPath, clientPath);
-
   if (enumFields.length > 0) {
     importList.push({
       kind: tsMorph.StructureKind.ImportDeclaration,
@@ -187,10 +165,8 @@ const writeImportsForModel = (model, sourceFile, config, {
       namedImports: Array.from(new Set(enumFields.map(f => f.type)))
     });
   }
-
   if (config.relationModel !== false && relationFields.length > 0) {
     const filteredFields = relationFields.filter(f => f.type !== model.name);
-
     if (filteredFields.length > 0) {
       importList.push({
         kind: tsMorph.StructureKind.ImportDeclaration,
@@ -199,7 +175,6 @@ const writeImportsForModel = (model, sourceFile, config, {
       });
     }
   }
-
   sourceFile.addImportDeclarations(importList);
 };
 const writeTypeSpecificSchemas = (model, sourceFile, config, _prismaOptions) => {
@@ -209,7 +184,6 @@ const writeTypeSpecificSchemas = (model, sourceFile, config, _prismaOptions) => 
       writeArray(writer, ['// Helper schema for JSON fields', `type Literal = boolean | number | string${config.prismaJsonNullability ? '' : '| null'}`, 'type Json = Literal | { [key: string]: Json } | Json[]', `const literalSchema = z.union([z.string(), z.number(), z.boolean()${config.prismaJsonNullability ? '' : ', z.null()'}])`, 'const jsonSchema: z.ZodSchema<Json> = z.lazy(() => z.union([literalSchema, z.array(jsonSchema), z.record(jsonSchema)]))']);
     });
   }
-
   if (config.useDecimalJs && model.fields.some(f => f.type === 'Decimal')) {
     sourceFile.addStatements(writer => {
       writer.newLine();
@@ -227,7 +201,6 @@ const generateSchemaForModel = (model, sourceFile, config, _prismaOptions) => {
     leadingTrivia: writer => writer.blankLineIfLastNot(),
     declarations: [{
       name: modelName(model.name),
-
       initializer(writer) {
         writer.write('z.object(').inlineBlock(() => {
           model.fields.filter(f => f.kind !== 'object').forEach(field => {
@@ -236,7 +209,6 @@ const generateSchemaForModel = (model, sourceFile, config, _prismaOptions) => {
           });
         }).write(')');
       }
-
     }]
   });
 };
@@ -263,7 +235,6 @@ const generateRelatedSchemaForModel = (model, sourceFile, config, _prismaOptions
     declarations: [{
       name: relatedModelName(model.name),
       type: `z.ZodSchema<Complete${model.name}>`,
-
       initializer(writer) {
         writer.write(`z.lazy(() => ${modelName(model.name)}.extend(`).inlineBlock(() => {
           relationFields.forEach(field => {
@@ -272,7 +243,6 @@ const generateRelatedSchemaForModel = (model, sourceFile, config, _prismaOptions
           });
         }).write('))');
       }
-
     }]
   });
 };
@@ -297,7 +267,6 @@ generatorHelper.generatorHandler({
       defaultOutput: 'zod'
     };
   },
-
   onGenerate(options) {
     const project = new tsMorph.Project();
     const models = options.dmmf.datamodel.models;
@@ -305,6 +274,9 @@ generatorHelper.generatorHandler({
       schemaPath
     } = options;
     const outputPath = options.generator.output.value;
+    if (outputPath === null) {
+      throw Error('Output path is null');
+    }
     const clientPath = options.otherGenerators.find(each => each.provider.value === 'prisma-client-js').output.value;
     const results = configSchema.safeParse(options.generator.config);
     if (!results.success) throw new Error('Incorrect config provided. Please check the values you provided and try again.');
@@ -336,6 +308,5 @@ generatorHelper.generatorHandler({
     });
     return project.save();
   }
-
 });
 //# sourceMappingURL=zod-prisma.cjs.development.js.map

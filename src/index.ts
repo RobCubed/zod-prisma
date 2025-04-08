@@ -3,7 +3,7 @@ import { version } from '../package.json'
 
 import { generatorHandler } from '@prisma/generator-helper'
 import { SemicolonPreference } from 'typescript'
-import { configSchema, PrismaOptions } from './config'
+import { configSchema } from './config'
 import { populateModelFile, generateBarrelFile } from './generator'
 import { Project } from 'ts-morph'
 
@@ -22,6 +22,9 @@ generatorHandler({
 
 		const { schemaPath } = options
 		const outputPath = options.generator.output!.value
+		if (outputPath === null) {
+			throw Error('Output path is null')
+		}
 		const clientPath = options.otherGenerators.find(
 			(each) => each.provider.value === 'prisma-client-js'
 		)!.output!.value!
@@ -33,7 +36,7 @@ generatorHandler({
 			)
 
 		const config = results.data
-		const prismaOptions: PrismaOptions = {
+		const prismaOptions = {
 			clientPath,
 			outputPath,
 			schemaPath,
