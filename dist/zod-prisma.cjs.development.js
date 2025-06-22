@@ -181,7 +181,7 @@ const writeTypeSpecificSchemas = (model, sourceFile, config, _prismaOptions) => 
   if (model.fields.some(f => f.type === 'Json')) {
     sourceFile.addStatements(writer => {
       writer.newLine();
-      writeArray(writer, ['// Helper schema for JSON fields', `type Literal = boolean | number | string${config.prismaJsonNullability ? '' : '| null'}`, 'type Json = Literal | { [key: string]: Json } | Json[]', `const literalSchema = z.union([z.string(), z.number(), z.boolean()${config.prismaJsonNullability ? '' : ', z.null()'}])`, 'const jsonSchema: z.ZodSchema<Json> = z.lazy(() => z.union([literalSchema, z.array(jsonSchema), z.record(jsonSchema)]))']);
+      writeArray(writer, ['// Helper schema for JSON fields', `type Literal = boolean | number | string${config.prismaJsonNullability ? '' : '| null'}`, 'type Json = Literal | { [key: string]: Json } | Json[]', `const literalSchema = z.union([z.string(), z.number(), z.boolean()${config.prismaJsonNullability ? '' : ', z.null()'}])`, 'const jsonSchema: z.ZodSchema<Json> = z.lazy(() => z.union([literalSchema, z.array(jsonSchema), z.record(z.string(), jsonSchema)]))']);
     });
   }
   if (config.useDecimalJs && model.fields.some(f => f.type === 'Decimal')) {
