@@ -112,7 +112,7 @@ const getZodConstructor = (field, getRelatedModelName = name => name.toString())
         break;
     }
   } else if (field.kind === 'enum') {
-    zodType = `z.nativeEnum(${field.type})`;
+    zodType = `z.enum(${field.type})`;
   } else if (field.kind === 'object') {
     zodType = getRelatedModelName(field.type);
   }
@@ -138,7 +138,7 @@ const writeImportsForModel = (model, sourceFile, config, {
   const importList = [{
     kind: tsMorph.StructureKind.ImportDeclaration,
     namespaceImport: 'z',
-    moduleSpecifier: 'zod'
+    moduleSpecifier: 'zod/v4'
   }];
   if (config.imports) {
     importList.push({
