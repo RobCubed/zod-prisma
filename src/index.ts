@@ -25,13 +25,14 @@ generatorHandler({
 		if (outputPath === null) {
 			throw Error('Output path is null')
 		}
+		const results = configSchema.safeParse(options.generator.config)
+
 		const clientPath = options.otherGenerators.find(
 			(each) =>
 				each.provider.value === 'prisma-client' ||
 				each.provider.value === 'prisma-client-js'
 		)!.output!.value!
 
-		const results = configSchema.safeParse(options.generator.config)
 		if (!results.success)
 			throw new Error(
 				'Incorrect config provided. Please check the values you provided and try again.'

@@ -34,6 +34,7 @@ export const chunk = <T extends any[]>(input: T, size: number): T[] => {
 }
 
 export const dotSlash = (input: string) => {
+	if (input.startsWith('@')) return input
 	const converted = input
 		.replace(/^\\\\\?\\/, '')
 		.replace(/\\/g, '/')

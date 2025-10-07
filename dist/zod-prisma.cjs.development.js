@@ -20,7 +20,8 @@ const configSchema = /*#__PURE__*/zod.z.object({
   modelCase: /*#__PURE__*/zod.z.enum(['PascalCase', 'camelCase']).default('PascalCase'),
   useDecimalJs: /*#__PURE__*/configBoolean.default('false'),
   imports: /*#__PURE__*/zod.z.string().optional(),
-  prismaJsonNullability: /*#__PURE__*/configBoolean.default('true')
+  prismaJsonNullability: /*#__PURE__*/configBoolean.default('true'),
+  clientPackage: /*#__PURE__*/zod.z.string().optional()
 });
 
 const writeArray = (writer, array, newLine = true) => array.forEach(line => writer.write(line).conditionalNewLine(newLine));
@@ -47,6 +48,7 @@ const chunk = (input, size) => {
   }, []);
 };
 const dotSlash = input => {
+  if (input.startsWith('@')) return input;
   const converted = input.replace(/^\\\\\?\\/, '').replace(/\\/g, '/').replace(/\/\/+/g, '/');
   if (converted.includes(`/node_modules/`)) return converted.split(`/node_modules/`).slice(-1)[0];
   if (converted.startsWith(`../`)) return converted;
@@ -158,10 +160,11 @@ const writeImportsForModel = (model, sourceFile, config, {
   const relationFields = model.fields.filter(f => f.kind === 'object');
   const relativePath = path__default["default"].relative(outputPath, clientPath);
   if (enumFields.length > 0) {
+    var _config$clientPackage;
     importList.push({
       kind: tsMorph.StructureKind.ImportDeclaration,
       isTypeOnly: enumFields.length === 0,
-      moduleSpecifier: dotSlash(relativePath),
+      moduleSpecifier: (_config$clientPackage = config.clientPackage) != null ? _config$clientPackage : dotSlash(relativePath),
       namedImports: Array.from(new Set(enumFields.map(f => f.type)))
     });
   }
@@ -277,8 +280,8 @@ generatorHelper.generatorHandler({
     if (outputPath === null) {
       throw Error('Output path is null');
     }
-    const clientPath = options.otherGenerators.find(each => each.provider.value === 'prisma-client' || each.provider.value === 'prisma-client-js').output.value;
     const results = configSchema.safeParse(options.generator.config);
+    const clientPath = options.otherGenerators.find(each => each.provider.value === 'prisma-client' || each.provider.value === 'prisma-client-js').output.value;
     if (!results.success) throw new Error('Incorrect config provided. Please check the values you provided and try again.');
     const config = results.data;
     const prismaOptions = {
