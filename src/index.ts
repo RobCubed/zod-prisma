@@ -26,7 +26,7 @@ generatorHandler({
 			throw Error('Output path is null')
 		}
 		const clientPath = options.otherGenerators.find(
-			(each) => each.provider.value === 'prisma-client-js'
+			(each) => each.provider.value === 'prisma-client'
 		)!.output!.value!
 
 		const results = configSchema.safeParse(options.generator.config)
