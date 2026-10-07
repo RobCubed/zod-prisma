@@ -7,7 +7,7 @@ var path = require('path');
 var tsMorph = require('ts-morph');
 var parenthesis = require('parenthesis');
 
-var version = "0.5.4";
+var version = "0.5.5";
 
 const configBoolean = /*#__PURE__*/zod.z.enum(['true', 'false']).transform(arg => JSON.parse(arg));
 const configSchema = /*#__PURE__*/zod.z.object({
