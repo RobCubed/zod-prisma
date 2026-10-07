@@ -1,15 +1,11 @@
 'use strict';
 
 var generatorHelper = require('@prisma/generator-helper');
-var typescript = require('typescript');
+var typescript6 = require('@typescript/typescript6');
 var zod = require('zod');
 var path = require('path');
 var tsMorph = require('ts-morph');
 var parenthesis = require('parenthesis');
-
-function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
-
-var path__default = /*#__PURE__*/_interopDefaultLegacy(path);
 
 var version = "0.5.4";
 
@@ -146,7 +142,7 @@ const writeImportsForModel = (model, sourceFile, config, {
     importList.push({
       kind: tsMorph.StructureKind.ImportDeclaration,
       namespaceImport: 'imports',
-      moduleSpecifier: dotSlash(path__default["default"].relative(outputPath, path__default["default"].resolve(path__default["default"].dirname(schemaPath), config.imports)))
+      moduleSpecifier: dotSlash(path.relative(outputPath, path.resolve(path.dirname(schemaPath), config.imports)))
     });
   }
   if (config.useDecimalJs && model.fields.some(f => f.type === 'Decimal')) {
@@ -158,7 +154,7 @@ const writeImportsForModel = (model, sourceFile, config, {
   }
   const enumFields = model.fields.filter(f => f.kind === 'enum');
   const relationFields = model.fields.filter(f => f.kind === 'object');
-  const relativePath = path__default["default"].relative(outputPath, clientPath);
+  const relativePath = path.relative(outputPath, clientPath);
   if (enumFields.length > 0) {
     var _config$clientPackage;
     importList.push({
@@ -296,7 +292,7 @@ generatorHelper.generatorHandler({
     indexFile.formatText({
       indentSize: 2,
       convertTabsToSpaces: true,
-      semicolons: typescript.SemicolonPreference.Remove
+      semicolons: typescript6.SemicolonPreference.Remove
     });
     models.forEach(model => {
       const sourceFile = project.createSourceFile(`${outputPath}/${model.name.toLowerCase()}.ts`, {}, {
@@ -306,7 +302,7 @@ generatorHelper.generatorHandler({
       sourceFile.formatText({
         indentSize: 2,
         convertTabsToSpaces: true,
-        semicolons: typescript.SemicolonPreference.Remove
+        semicolons: typescript6.SemicolonPreference.Remove
       });
     });
     return project.save();

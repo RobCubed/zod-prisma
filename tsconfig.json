@@ -17,7 +17,7 @@
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
 		// use Node's module resolution algorithm, instead of the legacy TS one
-		"moduleResolution": "node",
+		"moduleResolution": "bundler",
 		// interop between ESM and CJS modules. Recommended by TS
 		"esModuleInterop": true,
 		// significant perf increase by skipping checking .d.ts files, particularly those in node_modules. Recommended by TS
@@ -26,7 +26,6 @@
 		"forceConsistentCasingInFileNames": true,
 		// `tsdx build` ignores this option, but it is commonly used when type-checking separately with `tsc`
 		"noEmit": true,
-		"downlevelIteration": true,
 		"resolveJsonModule": true,
 		"noErrorTruncation": true
 	}
